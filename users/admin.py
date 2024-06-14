@@ -46,5 +46,9 @@ class CustomUserAdmin(UserAdmin):
     ordering = ("email",)
 
 
+class EmergencyContactAdmin(admin.ModelAdmin):
+    list_display = ("name", "phone_number", "user")
+
+
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(EmergencyContact)
+admin.site.register(EmergencyContact, EmergencyContactAdmin)

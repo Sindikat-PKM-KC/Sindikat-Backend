@@ -47,4 +47,4 @@ class RegisterSerializer(serializers.ModelSerializer):
 class EmergencyContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmergencyContact
-        fields = "__all__"
+        fields = ("name", "phone_number")

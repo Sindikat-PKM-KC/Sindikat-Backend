@@ -1,25 +1,16 @@
 from .serializers import RegisterSerializer, EmergencyContactSerializer
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework import status
+from .models import User, EmergencyContact
+from rest_framework import generics
 
 
-# Create your views here.
-class RegisterViewSet(viewsets.ViewSet):
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
-    def create(self, request):
-        serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class EmergencyContactCreateView(generics.CreateAPIView):
+    queryset = EmergencyContact.objects.all()
+    serializer_class = EmergencyContactSerializer
 
-class EmergencyContactCreateViewSet(viewsets.ViewSet):
-    def create(self, request):
-        serializer = EmergencyContactSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

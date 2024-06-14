@@ -5,7 +5,7 @@ from .models import Audio
 class AudioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Audio
-        fields = "__all__"
+        fields = ("file",)
 
     def validate_file(self, value):
         if not value.name.endswith((".wav", ".mp3", ".m4a")):

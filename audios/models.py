@@ -1,11 +1,12 @@
 from django.db import models
-from django.conf import settings
+from users.models import User
 
 
 class Audio(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     file = models.FileField(upload_to="audios/")
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Audio by {self.user.email} at {self.uploaded_at}"
+        return f"{self.user.name} ##### {self.created_at}"
