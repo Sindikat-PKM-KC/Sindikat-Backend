@@ -1,21 +1,18 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
+from .models import User, EmergencyContact
+from rest_framework import serializers
+from .models import User, EmergencyContact
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
-from .models import EmergencyContact
-
-User = get_user_model()
+from django.contrib.auth.hashers import make_password
 
 
 class RegisterSerializer(serializers.ModelSerializer):
     name = serializers.CharField(required=True)
-    phone_number = serializers.IntegerField(required=True)
     email = serializers.EmailField(
         required=True, validators=[UniqueValidator(queryset=User.objects.all())]
     )
-    username = serializers.CharField(
-        required=True, validators=[UniqueValidator(queryset=User.objects.all())]
-    )
+    phone_number = serializers.IntegerField(required=True)
     password = serializers.CharField(
         write_only=True, required=True, validators=[validate_password]
     )
@@ -23,16 +20,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = (
-            "name",
-            "email",
-            "username",
-            "phone_number",
-            "password",
-            "password_confirmation",
-        )
+        fields = ("name", "email", "phone_number", "password", "password_confirmation")
 
     def validate(self, attrs):
+        if len(str(attrs["phone_number"])) < 10:
+            raise serializers.ValidationError(
+                {"phone_number": "Phone number must be at least 10 digits."}
+            )
         if attrs["password"] != attrs["password_confirmation"]:
             raise serializers.ValidationError(
                 {"password": "Password fields didn't match."}
@@ -42,17 +36,15 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop("password_confirmation")
         user = User.objects.create(
-            username=validated_data["username"],
+            name=validated_data["name"],
             email=validated_data["email"],
-            name=validated_data.get("name", ""),
-            phone_number=validated_data.get("phone_number", ""),
+            phone_number=validated_data["phone_number"],
+            password=make_password(validated_data["password"]),
         )
-        user.set_password(validated_data["password"])
-        user.save()
         return user
 
 
 class EmergencyContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmergencyContact
-        fields = ("name", "phone_number", "user")
+        fields = "__all__"

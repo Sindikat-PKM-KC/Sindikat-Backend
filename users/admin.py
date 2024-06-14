@@ -1,13 +1,13 @@
 from django.contrib import admin
-from .models import CustomUser, EmergencyContact
+from .models import User, EmergencyContact
 from django.contrib.auth.admin import UserAdmin
 
 
 class CustomUserAdmin(UserAdmin):
-    model = CustomUser
+    model = User
     fieldsets = (
         (None, {"fields": ("email", "password")}),
-        ("Personal info", {"fields": ("username", "name", "phone_number")}),
+        ("Personal info", {"fields": ("name", "phone_number")}),
         (
             "Permissions",
             {
@@ -20,7 +20,7 @@ class CustomUserAdmin(UserAdmin):
                 )
             },
         ),
-        ("Important dates", {"fields": ("last_login", "date_joined")}),
+        ("Important dates", {"fields": ("last_login",)}),
     )
     add_fieldsets = (
         (
@@ -29,11 +29,9 @@ class CustomUserAdmin(UserAdmin):
                 "classes": ("wide",),
                 "fields": (
                     "email",
-                    "username",
                     "name",
                     "phone_number",
-                    "password1",
-                    "password2",
+                    "password",
                     "is_active",
                     "is_staff",
                     "is_superuser",
@@ -43,10 +41,10 @@ class CustomUserAdmin(UserAdmin):
             },
         ),
     )
-    list_display = ("email", "username", "name", "phone_number", "is_staff")
-    search_fields = ("email", "username", "name", "phone_number")
+    list_display = ("email", "name", "phone_number", "is_staff")
+    search_fields = ("email", "name", "phone_number")
     ordering = ("email",)
 
 
-admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(User, CustomUserAdmin)
 admin.site.register(EmergencyContact)
