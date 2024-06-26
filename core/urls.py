@@ -8,6 +8,7 @@ urlpatterns = [
     # Internal Apps
     path("api/", include("users.urls")),
     path("api/", include("audios.urls")),
+    path("api/", include("heartrates.urls")),
     #
     # Swagger API Documentation
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
