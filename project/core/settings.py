@@ -31,7 +31,19 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("APP_DEBUG", default=False)
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "127.0.0.1:8000",
+    "localhost",
+    "178.128.218.166",
+]
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "https://127.0.0.1:8000",
+    "http://localhost",
+    "https://localhost",
+    "http://178.128.218.166",
+    "https://178.128.218.166",
+]
 
 
 # Application definition
