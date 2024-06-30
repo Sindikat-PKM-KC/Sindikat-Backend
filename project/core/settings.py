@@ -32,11 +32,14 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("APP_DEBUG", default=False)
 
 ALLOWED_HOSTS = [
+    "sindikat-pkm.com",
     "127.0.0.1:8000",
     "localhost",
     "178.128.218.166",
 ]
 CSRF_TRUSTED_ORIGINS = [
+    "http://sindikat-pkm.com",
+    "https://sindikat-pkm.com",
     "http://127.0.0.1:8000",
     "https://127.0.0.1:8000",
     "http://localhost",
