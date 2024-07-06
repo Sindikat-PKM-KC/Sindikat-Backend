@@ -15,7 +15,7 @@ docker compose run \
   -d sindikat-pkm.com -d www.sindikat-pkm.com \
   --non-interactive \
   -m alfiangading81@gmail.com \
-  --agree-tos --no-eff-email \
+  --agree-tos --no-eff-email
 
 
 Untuk renew SSL certificate:

@@ -19,7 +19,7 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR.parent, ".env"))
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 
 # Quick-start development settings - unsuitable for production
@@ -35,6 +35,7 @@ ALLOWED_HOSTS = [
     "sindikat-pkm.com",
     "127.0.0.1:8000",
     "localhost",
+    "0.0.0.0",
     "178.128.218.166",
 ]
 CSRF_TRUSTED_ORIGINS = [
@@ -44,6 +45,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://127.0.0.1:8000",
     "http://localhost",
     "https://localhost",
+    "http://0.0.0.0",
+    "https://0.0.0.0",
     "http://178.128.218.166",
     "https://178.128.218.166",
 ]
