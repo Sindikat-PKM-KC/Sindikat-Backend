@@ -17,3 +17,5 @@ class ChildHeartRateSerializer(serializers.Serializer):
         if value not in [0, 1]:
             raise serializers.ValidationError("The type field must be either 0 or 1.")
         return value
+
+    
