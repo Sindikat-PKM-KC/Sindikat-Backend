@@ -13,3 +13,11 @@ class AudioUploadView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+class AudioListView(generics.ListAPIView):
+    queryset = Audio.objects.all()
+    serializer_class = AudioSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        return Audio.objects.filter(user=self.request.user)

@@ -2,7 +2,7 @@ FROM python:latest
 
 RUN pip install --upgrade pip
 
-COPY ./requirement.txt .
+COPY ./project/requirement.txt .
 RUN pip install -r requirement.txt
 
 COPY ./project /app
