@@ -6,6 +6,10 @@ from .serializers import TokenObtainLifetimeSerializer
 from rest_framework import generics
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -20,14 +24,13 @@ class EmergencyContactCreateView(generics.CreateAPIView):
     serializer_class = EmergencyContactSerializer
 
     def perform_create(self, serializer):
-        user_id = self.kwargs.get('id')  # Ambil user_id dari URL parameter
+        user_id = self.kwargs.get('id') 
         serializer.save(user_id=user_id)
 
     def create(self, request, *args, **kwargs):
         user_id = self.kwargs.get('id')
-        data = request.data.get('data', [])  # Ambil data dari key 'data'
+        data = request.data.get('data', [])
 
-        # Check if the request data is a list
         if not isinstance(data, list):
             return Response({"detail": "Request data must be a list"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -46,7 +49,6 @@ class EmergencyContactCreateView(generics.CreateAPIView):
                 errors.append("Each item must have 'name' and 'phone_number' keys")
                 continue
 
-            # Validate phone_number is an integer and has 10-15 digits
             try:
                 phone_number = int(phone_number)
                 if not (10 <= len(str(phone_number)) <= 15):
@@ -65,12 +67,10 @@ class EmergencyContactCreateView(generics.CreateAPIView):
 
         serializer = self.get_serializer(data=validated_data, many=True)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)  # Memanggil perform_create tanpa user_id
+        self.perform_create(serializer)
 
-        # Ambil data yang sudah disimpan dalam serializer setelah perform_create
         created_data = serializer.data
 
-        # Tambahkan pesan ke dalam response
         response_data = {
             "data": created_data,
             "message": "Emergency contacts created successfully."
@@ -78,10 +78,25 @@ class EmergencyContactCreateView(generics.CreateAPIView):
 
         return Response(response_data, status=status.HTTP_201_CREATED)
     
+class CustomTokenLogoutView(APIView):
+    def post(self, request):
+        refresh_token = request.data.get("refresh_token")
+
+        if not refresh_token:
+            return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"message": "Logout successful"}, status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            print(e);
+            return Response({"error": "Invalid or expired token"}, status=status.HTTP_400_BAD_REQUEST)
+
 class EmergencyContactListView(generics.ListAPIView):
     serializer_class = EmergencyContactSerializer
     permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
-        user = self.request.user  # Ambil user dari request
+        user = self.request.user
         return EmergencyContact.objects.filter(user=user)
