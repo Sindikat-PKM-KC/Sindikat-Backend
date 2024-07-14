@@ -17,18 +17,27 @@ class AudioUploadView(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
     parser_classes = (MultiPartParser, FormParser)
 
-    def perform_create(self, serializer):
-        location = self.request.data.get('location')
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        location = request.data.get('location')
         if not location:
             return Response({"error": "Location is required."}, status=status.HTTP_400_BAD_REQUEST)
         
-        audio_instance = serializer.save(user=self.request.user)
-        success = self.send_whatsapp_notification(self.request.user, self.request.data.get('location'), audio_instance.file.url)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        
+        audio_instance = serializer.instance
+        success = self.send_whatsapp_notification(request.user, location, audio_instance.file.url)
 
-        # if success:
-        #     return Response({"success": 0})
-        # else:
-        #     return Response({"error": "Failed to send WhatsApp notification"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if success:
+            return Response({"message": "Successfully sent WhatsApp notification"}, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            return Response({"message": "Failed to send WhatsApp notification"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, headers=headers)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
     def send_whatsapp_notification(self, user, location, audio_url):
         try:
@@ -56,11 +65,9 @@ class AudioUploadView(generics.CreateAPIView):
             response = requests.post(wa_gateway_url, data=payload, headers=headers)
             response.raise_for_status()
 
-            # Dummy response success
             return True
         
         except requests.RequestException as e:
-            # Handle any errors that occur during the request to the WA gateway
             print(f"Error sending WhatsApp notification: {e}")
             return False
 

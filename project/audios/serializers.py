@@ -24,6 +24,5 @@ class AudioSerializer(serializers.ModelSerializer):
         return audio_instance
     
     def generate_unique_filename(self, filename):
-        import uuid
         ext = filename.split('.')[-1]
         return f"{uuid.uuid4()}.{ext}"
