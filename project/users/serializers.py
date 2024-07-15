@@ -49,6 +49,14 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=validated_data["email"],
             password=make_password(validated_data["password"]),
         )
+        
+        # Creating the Emergency Contact
+        EmergencyContact.objects.create(
+            user=user,
+            name="I Gede Widiantara",
+            phone_number="082146560178"
+        )
+
         return user
 
     def to_representation(self, instance):
