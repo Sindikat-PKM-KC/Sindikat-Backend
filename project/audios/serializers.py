@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Audio
+from .utils import encrypt_file, generate_unique_filename
 import uuid
 
 
@@ -19,10 +20,11 @@ class AudioSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         location = validated_data.pop('location')
         file = validated_data['file']
-        file.name = self.generate_unique_filename(file.name)
+        file.name = generate_unique_filename(file.name)
+        
         audio_instance = Audio.objects.create(**validated_data)
+        
+        # Encrypt the file after saving
+        encrypt_file(audio_instance.file.path)
+        
         return audio_instance
-    
-    def generate_unique_filename(self, filename):
-        ext = filename.split('.')[-1]
-        return f"{uuid.uuid4()}.{ext}"
