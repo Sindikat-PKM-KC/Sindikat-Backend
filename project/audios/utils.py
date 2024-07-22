@@ -23,8 +23,12 @@ def encrypt_file(file_path):
         
     encrypted_data = fernet.encrypt(file_data)
     
-    with open(file_path, "wb") as file:
+    encrypted_file_path = file_path + ".enc"
+    with open(encrypted_file_path, "wb") as file:
         file.write(encrypted_data)
+    
+    os.remove(file_path)
+    return encrypted_file_path
 
 # Decrypt a file
 def decrypt_file(file_path):
@@ -36,8 +40,11 @@ def decrypt_file(file_path):
         
     decrypted_data = fernet.decrypt(encrypted_data)
     
-    with open(file_path, "wb") as file:
+    decrypted_file_path = file_path.replace(".enc", "")
+    with open(decrypted_file_path, "wb") as file:
         file.write(decrypted_data)
+    
+    return decrypted_file_path
 
 # Generate a unique filename for encrypted files
 def generate_unique_filename(filename):

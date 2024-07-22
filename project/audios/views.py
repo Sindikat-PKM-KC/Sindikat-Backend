@@ -1,9 +1,9 @@
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
-from django_ratelimit.decorators import ratelimit
+from rest_framework.views import APIView
 from urllib.parse import urljoin
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -12,6 +12,7 @@ from .serializers import AudioSerializer
 from .models import Audio
 from pathlib import Path
 from .utils import decrypt_file
+import mimetypes
 import requests
 import environ
 import os
@@ -78,9 +79,9 @@ class AudioUploadView(generics.CreateAPIView):
             print(f"Error sending WhatsApp notification: {e}")
             return False
         
-class AudioFileDownloadView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    
+class AudioFilePlayView(APIView):
+    permission_classes = []  # Make the endpoint accessible without authentication
+
     def get(self, request, *args, **kwargs):
         file_id = kwargs.get('pk')
         audio_instance = get_object_or_404(Audio, id=file_id)
@@ -89,13 +90,26 @@ class AudioFileDownloadView(generics.GenericAPIView):
         if not os.path.exists(file_path):
             raise Http404("File does not exist")
 
-        # Decrypt the file before serving
-        decrypt_file(file_path)
+        # Check if the file is already decrypted
+        if file_path.endswith(".enc"):
+            decrypted_file_path = decrypt_file(file_path)
+        else:
+            decrypted_file_path = file_path
+
+        # Determine the MIME type
+        mime_type, _ = mimetypes.guess_type(decrypted_file_path)
+        if mime_type is None:
+            mime_type = 'application/octet-stream'
 
         # Serve the file as a response
-        response = HttpResponse(open(file_path, 'rb'), content_type='audio/mpeg')
-        response['Content-Disposition'] = f'attachment; filename="{audio_instance.file.name}"'
-        return response
+        try:
+            with open(decrypted_file_path, 'rb') as f:
+                response = HttpResponse(f, content_type=mime_type)
+                response['Content-Disposition'] = f'inline; filename="{os.path.basename(decrypted_file_path)}"'
+                return response
+        except Exception as e:
+            return HttpResponse(f"Error: {str(e)}", status=500)
+
 
 class AudioListView(generics.ListAPIView):
     queryset = Audio.objects.all()
