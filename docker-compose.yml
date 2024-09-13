@@ -2,7 +2,6 @@ services:
   django_gunicorn:
     volumes:
       - ./project:/app 
-      - static:/app/static
     build:
       context: .
     ports:
