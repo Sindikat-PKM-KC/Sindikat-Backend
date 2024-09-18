@@ -1,1 +1,3 @@
 certbot/
+.env
+postgres/
