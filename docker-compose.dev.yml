@@ -14,10 +14,16 @@ services:
     container_name: postgres-db
     image: postgres:latest
     volumes:
-      - ./postgres:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: sindikat
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
+
+volumes:
+  media_data:
+    driver: local
+  postgres_data:
+    driver: local

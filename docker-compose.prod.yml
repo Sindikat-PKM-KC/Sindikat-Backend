@@ -1,0 +1,18 @@
+services:
+  sindikat-backend:
+    container_name: sindikat-backend
+    volumes:
+      - media_data:/app/media
+    build:
+      context: .
+    networks:
+      - nginx_proxy_manager
+      - postgres_network
+
+volumes:
+  media_data:
+    driver: local
+  nginx_proxy_manager:
+    external: true
+  postgres_network:
+    external: true
